@@ -1,4 +1,8 @@
-import type { ApiJob, CreateJobResponse } from '@/features/jobs/job.types'
+import type {
+  ApiJob,
+  CreateJobResponse,
+  JobResult,
+} from '@/features/jobs/job.types'
 import { apiFetch } from './client'
 
 /**
@@ -27,5 +31,15 @@ export const jobsApi = {
   /** Reads a job's current status. */
   async get(jobId: string): Promise<ApiJob> {
     return apiFetch<ApiJob>(`/jobs/${encodeURIComponent(jobId)}`)
+  },
+
+  /**
+   * Reads a completed job's result.
+   *
+   * Fails if the job has not finished — the caller is expected to ask only
+   * once the job's status is `complete`.
+   */
+  async getResult(jobId: string): Promise<JobResult> {
+    return apiFetch<JobResult>(`/jobs/${encodeURIComponent(jobId)}/result`)
   },
 }

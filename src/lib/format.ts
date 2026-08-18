@@ -44,3 +44,36 @@ export function formatFileType(file: File): string {
 
   return extension ? extension.toUpperCase() : 'Unknown'
 }
+
+/** Formats a duration in milliseconds as a short human string, e.g. `8.4s`. */
+export function formatDuration(milliseconds: number): string {
+  if (!Number.isFinite(milliseconds) || milliseconds <= 0) {
+    return '0s'
+  }
+
+  const seconds = milliseconds / 1000
+
+  if (seconds < 60) {
+    const rounded = Math.round(seconds * 10) / 10
+    return `${Number.isInteger(rounded) ? rounded : rounded.toFixed(1)}s`
+  }
+
+  const minutes = Math.floor(seconds / 60)
+  const remainder = Math.round(seconds % 60)
+
+  return remainder === 0 ? `${minutes}m` : `${minutes}m ${remainder}s`
+}
+
+/** Formats an ISO timestamp as a local time, e.g. `14:32`. */
+export function formatTime(isoTimestamp: string): string {
+  const date = new Date(isoTimestamp)
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Unknown'
+  }
+
+  return date.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
