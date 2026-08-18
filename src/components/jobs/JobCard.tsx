@@ -1,9 +1,11 @@
-import { Card, Link } from '@heroui/react'
+import { Button, Card, Link } from '@heroui/react'
+import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { LinkButton } from '@/components/ui/LinkButton'
 import { useJobStatus } from '@/features/jobs/hooks/useJobStatus'
 import { getJobStatusPresentation } from '@/features/jobs/job.status'
 import type { TrackedJob } from '@/features/jobs/job.types'
 import { ROUTES } from '@/lib/constants'
+import { JobError } from './JobError'
 import { JobProgress } from './JobProgress'
 import { JobStatus } from './JobStatus'
 
@@ -15,10 +17,17 @@ interface JobCardProps {
  * One job in the list, with its own status subscription.
  *
  * Each card reads its own job, so jobs update independently — one can be
- * processing while another has already completed or failed.
+ * processing while another has already completed or failed, and a card whose
+ * status check breaks does not disturb the others.
  */
 export function JobCard({ job }: JobCardProps) {
-  const { status, job: apiJob, isPending, isError } = useJobStatus(job.id)
+  const {
+    status,
+    job: apiJob,
+    isPending,
+    error: statusError,
+    refetch,
+  } = useJobStatus(job.id)
   const detailsHref = ROUTES.jobDetails(job.id)
 
   return (
@@ -38,7 +47,7 @@ export function JobCard({ job }: JobCardProps) {
             <JobStatus status={status} />
           ) : (
             <p className="text-sm text-muted">
-              {isError ? 'Status unavailable' : 'Checking status…'}
+              {isPending ? 'Checking status…' : 'Status unavailable'}
             </p>
           )}
         </div>
@@ -53,8 +62,22 @@ export function JobCard({ job }: JobCardProps) {
           <JobProgress label={`Processing ${job.filename}`} />
         ) : null}
 
-        {status === 'failed' && apiJob?.error ? (
-          <p className="text-sm text-danger">{apiJob.error}</p>
+        {status === 'failed' ? <JobError reason={apiJob?.error} /> : null}
+
+        {/*
+          The status check itself failed, which stops polling. Without an
+          explicit way back the job would sit unreadable forever, so offer one.
+        */}
+        {statusError && !status ? (
+          <ErrorAlert
+            title={statusError.title}
+            message={statusError.message}
+            action={
+              <Button variant="secondary" size="sm" onPress={refetch}>
+                Check again
+              </Button>
+            }
+          />
         ) : null}
 
         {status === 'complete' ? (
@@ -65,9 +88,7 @@ export function JobCard({ job }: JobCardProps) {
           </div>
         ) : null}
 
-        {isPending && !status ? (
-          <span className="sr-only">Loading job status</span>
-        ) : null}
+        {isPending ? <span className="sr-only">Loading job status</span> : null}
       </Card.Content>
     </Card>
   )

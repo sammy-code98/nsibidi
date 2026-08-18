@@ -96,3 +96,46 @@ export function describeResultFailure(error: unknown): FailureDescription {
     message: `Your job finished, but something unexpected stopped the result from loading. ${TRY_AGAIN}`,
   }
 }
+
+/**
+ * Turns a failed status check into copy explaining what happened.
+ *
+ * Distinct from a job that *failed to process*: here the job may be perfectly
+ * healthy and it is our view of it that broke.
+ */
+export function describeStatusFailure(error: unknown): FailureDescription {
+  if (error instanceof ApiError) {
+    if (error.isNetworkError) {
+      return {
+        title: "We couldn't check on this job",
+        message:
+          'We could not reach the processing service. Check your connection and try again.',
+      }
+    }
+
+    if (error.status === 404) {
+      return {
+        title: 'This job is no longer available',
+        message:
+          'The service has no record of it. Jobs are only tracked for the current session, so a page reload can lose them — upload the image again to create a new job.',
+      }
+    }
+
+    if (error.isServerError) {
+      return {
+        title: "We couldn't check on this job",
+        message: `The processing service is temporarily unavailable. ${TRY_AGAIN}`,
+      }
+    }
+
+    return {
+      title: "We couldn't check on this job",
+      message: `The service returned an error: ${error.message} ${TRY_AGAIN}`,
+    }
+  }
+
+  return {
+    title: "We couldn't check on this job",
+    message: `Something unexpected stopped us from checking on it. ${TRY_AGAIN}`,
+  }
+}

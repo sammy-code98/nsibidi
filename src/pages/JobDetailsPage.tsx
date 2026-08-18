@@ -1,10 +1,11 @@
-import { Card } from '@heroui/react'
+import { Button, Card } from '@heroui/react'
 import { useParams } from 'react-router-dom'
 import { JobError } from '@/components/jobs/JobError'
 import { JobProgress } from '@/components/jobs/JobProgress'
 import { JobStatus } from '@/components/jobs/JobStatus'
 import { PageHeading } from '@/components/layout/PageHeading'
 import { ResultCard } from '@/components/results/ResultCard'
+import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { LinkButton } from '@/components/ui/LinkButton'
 import { useJobStatus } from '@/features/jobs/hooks/useJobStatus'
 import { useJobsRegistry } from '@/features/jobs/jobsContext'
@@ -20,7 +21,13 @@ export function JobDetailsPage() {
   const { jobId = '' } = useParams<{ jobId: string }>()
   const { getJob } = useJobsRegistry()
   const trackedJob = getJob(jobId)
-  const { status, job, isPending, isError } = useJobStatus(jobId)
+  const {
+    status,
+    job,
+    isPending,
+    error: statusError,
+    refetch,
+  } = useJobStatus(jobId)
 
   const heading = (
     <PageHeading
@@ -46,23 +53,32 @@ export function JobDetailsPage() {
     )
   }
 
-  if (isError || !status) {
+  if (!status) {
+    // `statusError` covers every known failure; this only guards the case
+    // where a request succeeded but returned nothing usable.
+    const failure = statusError ?? {
+      title: "We couldn't load this job",
+      message:
+        'The service did not return a status for this job. Please try again.',
+    }
+
     return (
       <>
         {heading}
-        <Card>
-          <Card.Header>
-            <Card.Title>We can&apos;t find that job</Card.Title>
-            <Card.Description>
-              Jobs are only tracked for the current session, so this one may
-              have been lost on a page reload. Upload the image again to create
-              a new job.
-            </Card.Description>
-          </Card.Header>
-          <Card.Footer>
-            <LinkButton href={ROUTES.upload}>Upload an image</LinkButton>
-          </Card.Footer>
-        </Card>
+        <ErrorAlert
+          title={failure.title}
+          message={failure.message}
+          action={
+            <>
+              <Button variant="secondary" size="sm" onPress={refetch}>
+                Check again
+              </Button>
+              <LinkButton href={ROUTES.upload} variant="secondary" size="sm">
+                Upload an image
+              </LinkButton>
+            </>
+          }
+        />
       </>
     )
   }

@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { jobsApi } from '@/api/jobs'
 import type { ApiJob, JobStatus } from '../job.types'
+import type { FailureDescription } from '../job.errors'
+import { describeStatusFailure } from '../job.errors'
 import { JOB_POLL_INTERVAL_MS } from '../job.config'
 import { jobKeys } from '../job.keys'
 import { isTerminalStatus } from '../job.utils'
@@ -14,6 +16,8 @@ interface UseJobStatusResult {
   isPending: boolean
   /** True when the status could not be read. */
   isError: boolean
+  /** Why the status could not be read, described for the user. */
+  error: FailureDescription | null
   /** True while the job is still being re-checked. */
   isPolling: boolean
   refetch: () => void
@@ -21,6 +25,9 @@ interface UseJobStatusResult {
 
 /**
  * Tracks one job's status, re-checking it until it settles.
+ *
+ * When polling has given up after a failure, calling `refetch` resumes it:
+ * a successful read clears the error state, which re-enables the interval.
  *
  * Polling is expressed as a property of the query rather than a timer owned by
  * a component: React Query starts the interval when the first observer mounts
@@ -59,6 +66,7 @@ export function useJobStatus(jobId: string): UseJobStatusResult {
     status,
     isPending: query.isPending,
     isError: query.isError,
+    error: query.error ? describeStatusFailure(query.error) : null,
     isPolling: status !== undefined && !isTerminalStatus(status),
     refetch: () => void query.refetch(),
   }
