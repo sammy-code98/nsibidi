@@ -4,7 +4,6 @@ import { formatFileSize, formatFileType } from '@/lib/format'
 
 interface FilePreviewProps {
   file: File
-  /** Removes the selected file. Omit to render a read-only preview. */
   onRemove?: () => void
   isRemoveDisabled?: boolean
 }

@@ -16,13 +16,7 @@ interface JobCardProps {
   job: TrackedJob
 }
 
-/**
- * One job in the list, with its own status subscription.
- *
- * Each card reads its own job, so jobs update independently — one can be
- * processing while another has already completed or failed, and a card whose
- * status check breaks does not disturb the others.
- */
+
 export function JobCard({ job }: JobCardProps) {
   const {
     status,
@@ -45,7 +39,6 @@ export function JobCard({ job }: JobCardProps) {
           <div className="min-w-0 flex-1">
             <Link
               href={detailsHref}
-              // `py-1` keeps the tap target at least 24px tall.
               className="block truncate py-1 text-sm font-medium"
             >
               {job.filename}
@@ -77,10 +70,7 @@ export function JobCard({ job }: JobCardProps) {
           <JobFailurePanel job={job} reason={apiJob?.error} />
         ) : null}
 
-        {/*
-          The status check itself failed, which stops polling. Without an
-          explicit way back the job would sit unreadable forever, so offer one.
-        */}
+
         {statusError && !status ? (
           <ErrorAlert
             title={statusError.title}

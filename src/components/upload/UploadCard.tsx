@@ -10,10 +10,7 @@ import { ROUTES } from '@/lib/constants'
 import { FileDropzone } from './FileDropzone'
 import { FilePreview } from './FilePreview'
 
-/**
- * Staging area for a single image: pick a file, review it, and submit it as a
- * processing job.
- */
+
 export function UploadCard() {
   const navigate = useNavigate()
   const { trackJob } = useJobsRegistry()
@@ -29,7 +26,6 @@ export function UploadCard() {
       trackJob({
         id: job.job_id,
         filename: submittedFile.name,
-        // Kept so a failed job can be resubmitted without re-picking the file.
         file: submittedFile,
         createdAt: new Date().toISOString(),
       })
@@ -49,7 +45,6 @@ export function UploadCard() {
 
   const handleSelectFile = useCallback(
     (candidate: File) => {
-      // A new choice supersedes whatever the last attempt reported.
       resetSubmission()
       selectFile(candidate)
     },

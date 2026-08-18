@@ -1,8 +1,6 @@
 import { ApiError } from '@/api/client'
 
-/**
- * A failure described for a human: what went wrong, and what to do about it.
- */
+
 export interface FailureDescription {
   title: string
   message: string
@@ -10,12 +8,7 @@ export interface FailureDescription {
 
 const TRY_AGAIN = 'Please try again.'
 
-/**
- * Turns any thrown value into copy explaining why a submission failed.
- *
- * Deliberately never produces a bare "Something went wrong" — every branch
- * names a likely cause and a next step.
- */
+
 export function describeSubmissionFailure(error: unknown): FailureDescription {
   if (error instanceof ApiError) {
     if (error.isNetworkError) {
@@ -53,13 +46,7 @@ export function describeSubmissionFailure(error: unknown): FailureDescription {
   }
 }
 
-/**
- * Turns a failed result request into copy explaining what happened.
- *
- * A completed job whose result will not load is a distinct situation from a
- * job that failed outright, and the wording keeps that distinction — the work
- * succeeded, only the retrieval did not.
- */
+
 export function describeResultFailure(error: unknown): FailureDescription {
   if (error instanceof ApiError) {
     if (error.isNetworkError) {
@@ -97,12 +84,7 @@ export function describeResultFailure(error: unknown): FailureDescription {
   }
 }
 
-/**
- * Turns a failed status check into copy explaining what happened.
- *
- * Distinct from a job that *failed to process*: here the job may be perfectly
- * healthy and it is our view of it that broke.
- */
+
 export function describeStatusFailure(error: unknown): FailureDescription {
   if (error instanceof ApiError) {
     if (error.isNetworkError) {

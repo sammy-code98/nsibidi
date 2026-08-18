@@ -1,12 +1,6 @@
 import { Alert } from '@heroui/react'
 
-/**
- * Reassurance for a job that is taking longer than usual.
- *
- * Deliberately neutral rather than a warning: nothing has gone wrong, the job
- * is still running, and it is still being monitored. Marking it as a problem
- * would be misleading.
- */
+
 export function JobLongRunningNotice() {
   return (
     <Alert status="default" role="status">

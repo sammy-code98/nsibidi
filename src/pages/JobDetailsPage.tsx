@@ -14,12 +14,7 @@ import { useJobsRegistry } from '@/features/jobs/jobsContext'
 import { isActiveStatus } from '@/features/jobs/job.utils'
 import { ROUTES } from '@/lib/constants'
 
-/**
- * A single job in detail.
- *
- * Composes the same status, progress, failure and result components the job
- * list uses, so each state has one implementation rather than a second copy.
- */
+
 export function JobDetailsPage() {
   const { jobId = '' } = useParams<{ jobId: string }>()
   const navigate = useNavigate()

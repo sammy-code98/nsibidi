@@ -18,16 +18,6 @@ export interface CreateJobResponse {
   status: JobStatus
 }
 
-/**
- * Frontend-only metadata about a job the app is tracking.
- *
- * The API never returns any of this: the original filename for display, the
- * file itself so a failed job can be resubmitted, and when the job was
- * submitted, for ordering and long-running detection.
- *
- * Status deliberately lives elsewhere (the query cache, fed by the API) so
- * there is exactly one place that knows what a job's status is.
- */
 export interface TrackedJob {
   id: string
   filename: string
@@ -37,10 +27,9 @@ export interface TrackedJob {
 
 /** Payload returned by the result endpoint once a job is complete. */
 export interface JobResult {
-  job_id: string
-  filename: string
-  /** Displayable URL of the processed image. */
-  result: string
-  completed_at: string
-  processing_time_ms: number
+  job_id: string;
+  filename: string;
+  result: string;
+  completed_at: string;
+  processing_time_ms: number;
 }

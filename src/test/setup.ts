@@ -6,13 +6,6 @@ import { FormData as UndiciFormData } from 'undici'
 import { resetMockJobs } from '@/mocks/data'
 import { server } from '@/mocks/server'
 
-/*
- * jsdom ships its own File/Blob/FormData, which Node's fetch cannot serialise —
- * an upload then hangs forever with no error at all. Node's fetch *is* undici,
- * so these are taken from the same implementations it uses. Doing it globally
- * (rather than converting at the request boundary) also keeps `instanceof File`
- * checks in app code agreeing with what the request handlers receive.
- */
 globalThis.File = NodeFile as unknown as typeof globalThis.File
 globalThis.Blob = NodeBlob as unknown as typeof globalThis.Blob
 globalThis.FormData = UndiciFormData as unknown as typeof globalThis.FormData

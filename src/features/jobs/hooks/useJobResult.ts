@@ -6,28 +6,17 @@ import { describeResultFailure } from '../job.errors'
 import { jobKeys } from '../job.keys'
 
 interface UseJobResultOptions {
-  /**
-   * Whether the job has finished. The request is not made until this is true,
-   * so the app never asks for a result the service would refuse to give.
-   */
-  enabled: boolean
+  enabled: boolean;
 }
 
 interface UseJobResultResult {
-  result: JobResult | undefined
-  /** True while the result is being fetched for the first time. */
-  isLoading: boolean
-  /** Why the result could not be loaded, described for the user. */
-  error: FailureDescription | null
-  retry: () => void
+  result: JobResult | undefined;
+  isLoading: boolean;
+  error: FailureDescription | null;
+  retry: () => void;
 }
 
-/**
- * Fetches a completed job's result.
- *
- * A result never changes once produced, so it is cached indefinitely and is
- * not re-requested on remount or navigation.
- */
+
 export function useJobResult(
   jobId: string,
   { enabled }: UseJobResultOptions,

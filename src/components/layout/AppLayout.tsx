@@ -3,13 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { useJobsRegistry } from '@/features/jobs/jobsContext'
 import { AppHeader } from './AppHeader'
 
-/**
- * Application chrome shared by every route.
- *
- * Bridges React Router into React Aria (which HeroUI is built on) so that
- * HeroUI links and buttons rendered with `href` navigate client-side instead
- * of triggering a full page load.
- */
+
 export function AppLayout() {
   const navigate = useNavigate()
   const { jobs } = useJobsRegistry()

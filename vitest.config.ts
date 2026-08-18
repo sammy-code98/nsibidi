@@ -5,14 +5,13 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    setupFiles: ['./src/test/setup.ts'],
-    // Jobs advance on a real clock, so a few tests wait several seconds.
+    setupFiles: ["./src/test/setup.ts"],
     testTimeout: 30_000,
     hookTimeout: 30_000,
   },
-})
+});

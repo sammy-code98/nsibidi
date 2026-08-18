@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom'
 import { APP_NAME, ROUTES } from '@/lib/constants'
 
 interface AppHeaderProps {
-  /** Number of jobs currently tracked, shown alongside the Jobs link. */
   jobCount: number
 }
 
@@ -12,7 +11,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
     'focus-visible:focus-ring',
     isActive
-      ? 'bg-surface-secondary text-foreground'
+      ? 'bg-surface-secondary text-accent underline underline-offset-2' 
       : 'text-muted hover:text-foreground',
   ].join(' ')
 

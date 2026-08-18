@@ -6,24 +6,15 @@ import { ResultViewer } from './ResultViewer'
 
 interface ResultCardProps {
   jobId: string
-  /** Whether the job has finished. The result is requested only when true. */
   isComplete: boolean
 }
 
-/**
- * The result of a completed job, covering loading, failure and success.
- *
- * Failing to load a result is treated as its own problem with its own retry,
- * rather than being reported as the job having failed.
- */
+
 export function ResultCard({ jobId, isComplete }: ResultCardProps) {
   const { result, isLoading, error, retry } = useJobResult(jobId, {
     enabled: isComplete,
   })
 
-  // Asking for a result before the job has finished is a normal thing for a
-  // user to do — by bookmarking the page, say — so say so plainly rather than
-  // claiming the job is complete.
   if (!isComplete) {
     return (
       <EmptyState

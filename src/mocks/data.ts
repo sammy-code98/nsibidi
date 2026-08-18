@@ -17,24 +17,17 @@ const FAILURE_REASONS = [
  * if the tab is backgrounded and timers are throttled, and no timer can leak.
  */
 export interface MockJob {
-  id: string
-  filename: string
-  createdAt: number
-  /** Timestamp at which the job stops being queued. */
-  startsProcessingAt: number
-  /** Timestamp at which the job reaches its terminal status. */
-  finishesAt: number
-  /** The terminal status this job is destined for. */
-  outcome: Extract<JobStatus, 'complete' | 'failed'>
-  /** Failure detail, present only when `outcome` is `failed`. */
-  error: string | null
-  /** URL the UI can render as the processed image, once complete. */
-  resultUrl: string
-  /** The uploaded bytes, served back by the image endpoint. */
-  imageBytes: ArrayBuffer
-  imageType: string
-  /** Forces the result endpoint to fail, to exercise result-error handling. */
-  resultIsUnavailable: boolean
+  id: string;
+  filename: string;
+  createdAt: number;
+  startsProcessingAt: number;
+  finishesAt: number;
+  outcome: Extract<JobStatus, "complete" | "failed">;
+  error: string | null;
+  resultUrl: string;
+  imageBytes: ArrayBuffer;
+  imageType: string;
+  resultIsUnavailable: boolean;
 }
 
 const jobs = new Map<string, MockJob>()

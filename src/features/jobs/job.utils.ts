@@ -11,12 +11,7 @@ export function isActiveStatus(status: JobStatus): boolean {
   return !isTerminalStatus(status)
 }
 
-/**
- * Whether a job can be resubmitted.
- *
- * Retrying re-uploads the original file, so it is only possible for jobs
- * submitted in this session — a job opened by URL has no file to send.
- */
+
 export function canRetryJob(job: TrackedJob): boolean {
   return job.file instanceof File
 }

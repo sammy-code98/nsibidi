@@ -5,7 +5,6 @@ interface JobListProps {
   jobs: TrackedJob[]
 }
 
-/** Every job submitted this session, newest first. */
 export function JobList({ jobs }: JobListProps) {
   return (
     <ul className="space-y-3">

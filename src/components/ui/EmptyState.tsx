@@ -2,22 +2,13 @@ import { Card } from '@heroui/react'
 import type { ReactNode } from 'react'
 
 interface EmptyStateProps {
-  /** What is absent, stated plainly. */
   title: string
-  /** How the user gets past this state. */
   description: string
-  /** Optional decorative glyph. */
   icon?: ReactNode
-  /** Optional primary action. */
   action?: ReactNode
 }
 
-/**
- * Standard presentation for "there is nothing here yet".
- *
- * Always pairs the absence with a way out of it, so an empty screen is never
- * just a dead end.
- */
+
 export function EmptyState({
   title,
   description,

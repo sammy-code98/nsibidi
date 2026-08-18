@@ -9,27 +9,17 @@ import {
 import { UploadIcon } from './UploadIcon'
 
 interface FileDropzoneProps {
-  /** Called with the chosen file. Validation is the caller's responsibility. */
   onFileSelected: (file: File) => void
   isDisabled?: boolean
 }
 
-/**
- * Drag-and-drop plus click-to-browse image picker.
- *
- * Built around a real `<input type="file">` rather than a `div` with click
- * handlers: the input stays in the tab order and opens the picker on
- * Enter/Space, so keyboard and screen-reader users get the same affordance
- * without any custom key handling. Drag-and-drop is layered on top as an
- * enhancement for pointer users.
- */
+
 export function FileDropzone({ onFileSelected, isDisabled }: FileDropzoneProps) {
   const inputId = useId()
   const hintId = useId()
-  const [isDraggingOver, setIsDraggingOver] = useState(false)
+  const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false)
 
-  // Drag events fire for descendants too, so a plain boolean would flicker as
-  // the pointer moves between the label and the hint text.
+
   const dragDepth = useRef(0)
 
   const handleFiles = useCallback(
@@ -45,7 +35,6 @@ export function FileDropzone({ onFileSelected, isDisabled }: FileDropzoneProps) 
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     handleFiles(event.target.files)
-    // Reset so re-picking the same file still fires a change event.
     event.target.value = ''
   }
 
@@ -58,7 +47,6 @@ export function FileDropzone({ onFileSelected, isDisabled }: FileDropzoneProps) 
 
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     if (isDisabled) return
-    // Required for the element to be a valid drop target.
     event.preventDefault()
   }
 
@@ -106,8 +94,6 @@ export function FileDropzone({ onFileSelected, isDisabled }: FileDropzoneProps) 
         htmlFor={inputId}
         className={cn(
           'flex flex-col items-center justify-center gap-3 rounded-xl px-6 py-10 text-center',
-          // The input itself is visually hidden, so its focus is surfaced on
-          // the label — otherwise keyboard users get no focus indicator.
           'peer-focus-visible:focus-ring',
           isDisabled ? 'cursor-not-allowed' : 'cursor-pointer',
         )}

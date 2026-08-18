@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 interface PageHeadingProps {
   title: string
   description?: string
-  /** Optional trailing content, such as a primary action. */
   action?: ReactNode
 }
 

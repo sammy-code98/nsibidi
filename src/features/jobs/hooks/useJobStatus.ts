@@ -8,33 +8,16 @@ import { jobKeys } from '../job.keys'
 import { isTerminalStatus } from '../job.utils'
 
 interface UseJobStatusResult {
-  /** The service's latest view of the job. */
-  job: ApiJob | undefined
-  /** Current status, or `undefined` before the first successful read. */
-  status: JobStatus | undefined
-  /** True only before any status is known. */
-  isPending: boolean
-  /** True when the status could not be read. */
-  isError: boolean
-  /** Why the status could not be read, described for the user. */
-  error: FailureDescription | null
-  /** True while the job is still being re-checked. */
-  isPolling: boolean
-  refetch: () => void
+  job: ApiJob | undefined;
+  status: JobStatus | undefined;
+  isPending: boolean;
+  isError: boolean;
+  error: FailureDescription | null;
+  isPolling: boolean;
+  refetch: () => void;
 }
 
-/**
- * Tracks one job's status, re-checking it until it settles.
- *
- * When polling has given up after a failure, calling `refetch` resumes it:
- * a successful read clears the error state, which re-enables the interval.
- *
- * Polling is expressed as a property of the query rather than a timer owned by
- * a component: React Query starts the interval when the first observer mounts
- * and clears it when the last one unmounts, so a card leaving the screen can
- * never leave a request loop behind. The interval also switches itself off the
- * moment the job reaches a terminal status.
- */
+
 export function useJobStatus(jobId: string): UseJobStatusResult {
   const query = useQuery({
     queryKey: jobKeys.detail(jobId),

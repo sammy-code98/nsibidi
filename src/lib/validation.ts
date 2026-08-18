@@ -1,18 +1,12 @@
 import { formatFileSize } from './format'
 
-/** Largest image the app will accept, in bytes. */
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 
-/**
- * MIME types the app accepts. JPG and JPEG are the same type (`image/jpeg`),
- * so this list is shorter than the list of extensions shown to users.
- */
+
 export const ACCEPTED_MIME_TYPES = ['image/png', 'image/jpeg'] as const
 
-/** Extensions accepted, used for the file input's `accept` attribute. */
 export const ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg'] as const
 
-/** Human-readable list of accepted formats, shown in the UI. */
 export const ACCEPTED_FORMATS_LABEL = 'PNG, JPG or JPEG'
 
 /** Value for the `accept` attribute of a file input. */
@@ -54,12 +48,7 @@ function hasAcceptedExtension(name: string): boolean {
   )
 }
 
-/**
- * Checks a file against the app's upload rules.
- *
- * The single source of truth for what counts as a valid upload — components
- * call this rather than re-checking sizes or types themselves.
- */
+
 export function validateImageFile(file: File): FileValidationResult {
   // Some browsers report an empty `type` for files dragged from unusual
   // sources, so fall back to the extension before rejecting.

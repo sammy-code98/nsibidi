@@ -6,7 +6,6 @@ interface ResultViewerProps {
   result: JobResult
 }
 
-/** The processed image, with the facts about how it was produced. */
 export function ResultViewer({ result }: ResultViewerProps) {
   const [didImageFail, setDidImageFail] = useState(false)
 

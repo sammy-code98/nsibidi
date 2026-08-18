@@ -17,13 +17,7 @@ const PNG_BYTES = new Uint8Array([
   0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
 ])
 
-/**
- * Builds an image file for tests.
- *
- * Filenames drive the mock service's behaviour: `success-*` always completes,
- * `broken-*` always fails, `slow-*` runs long, `noresult-*` completes with an
- * unreachable result.
- */
+/*** Builds an image file for tests. */
 export function imageFile(
   name = 'photo.png',
   { type = 'image/png', size }: { type?: string; size?: number } = {},
@@ -88,9 +82,6 @@ export function renderWithProviders(
 /**
  * Moves the clock forward so time-derived job statuses advance without the
  * test having to wait out a real processing window.
- *
- * Not a React hook — it patches `Date.now`, which is what the mock service
- * derives every job status from.
  */
 export function createFakeClock() {
   const realNow = Date.now.bind(Date)
