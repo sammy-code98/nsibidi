@@ -1,5 +1,5 @@
 import { Button, Card } from '@heroui/react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { JobError } from '@/components/jobs/JobError'
 import { JobProgress } from '@/components/jobs/JobProgress'
 import { JobStatus } from '@/components/jobs/JobStatus'
@@ -8,6 +8,8 @@ import { ResultCard } from '@/components/results/ResultCard'
 import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { LinkButton } from '@/components/ui/LinkButton'
 import { useJobStatus } from '@/features/jobs/hooks/useJobStatus'
+import { useRetryJob } from '@/features/jobs/hooks/useRetryJob'
+import { canRetryJob } from '@/features/jobs/job.utils'
 import { useJobsRegistry } from '@/features/jobs/jobsContext'
 import { ROUTES } from '@/lib/constants'
 
@@ -19,8 +21,18 @@ import { ROUTES } from '@/lib/constants'
  */
 export function JobDetailsPage() {
   const { jobId = '' } = useParams<{ jobId: string }>()
+  const navigate = useNavigate()
   const { getJob } = useJobsRegistry()
   const trackedJob = getJob(jobId)
+
+  // Following the retry keeps the user on the job they are now waiting for.
+  const {
+    retry,
+    isRetrying,
+    error: retryError,
+  } = useRetryJob({
+    onRetried: (created) => void navigate(ROUTES.jobDetails(created.job_id)),
+  })
   const {
     status,
     job,
@@ -96,14 +108,32 @@ export function JobDetailsPage() {
     return (
       <>
         {heading}
-        <JobError
-          reason={job?.error}
-          actions={
-            <LinkButton href={ROUTES.upload} variant="secondary" size="sm">
-              Upload another image
-            </LinkButton>
-          }
-        />
+        <div className="space-y-4">
+          <JobError
+            reason={job?.error}
+            actions={
+              <>
+                {trackedJob && canRetryJob(trackedJob) ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onPress={() => retry(trackedJob)}
+                    isPending={isRetrying}
+                  >
+                    {isRetrying ? 'Resubmitting…' : 'Retry job'}
+                  </Button>
+                ) : null}
+                <LinkButton href={ROUTES.upload} variant="secondary" size="sm">
+                  Upload another image
+                </LinkButton>
+              </>
+            }
+          />
+
+          {retryError ? (
+            <ErrorAlert title={retryError.title} message={retryError.message} />
+          ) : null}
+        </div>
       </>
     )
   }

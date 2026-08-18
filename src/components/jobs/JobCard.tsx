@@ -2,8 +2,10 @@ import { Button, Card, Link } from '@heroui/react'
 import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { LinkButton } from '@/components/ui/LinkButton'
 import { useJobStatus } from '@/features/jobs/hooks/useJobStatus'
+import { useRetryJob } from '@/features/jobs/hooks/useRetryJob'
 import { getJobStatusPresentation } from '@/features/jobs/job.status'
 import type { TrackedJob } from '@/features/jobs/job.types'
+import { canRetryJob } from '@/features/jobs/job.utils'
 import { ROUTES } from '@/lib/constants'
 import { JobError } from './JobError'
 import { JobProgress } from './JobProgress'
@@ -28,6 +30,7 @@ export function JobCard({ job }: JobCardProps) {
     error: statusError,
     refetch,
   } = useJobStatus(job.id)
+  const { retry, isRetrying, error: retryError } = useRetryJob()
   const detailsHref = ROUTES.jobDetails(job.id)
 
   return (
@@ -62,7 +65,27 @@ export function JobCard({ job }: JobCardProps) {
           <JobProgress label={`Processing ${job.filename}`} />
         ) : null}
 
-        {status === 'failed' ? <JobError reason={apiJob?.error} /> : null}
+        {status === 'failed' ? (
+          <JobError
+            reason={apiJob?.error}
+            actions={
+              canRetryJob(job) ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onPress={() => retry(job)}
+                  isPending={isRetrying}
+                >
+                  {isRetrying ? 'Resubmitting…' : 'Retry job'}
+                </Button>
+              ) : null
+            }
+          />
+        ) : null}
+
+        {retryError ? (
+          <ErrorAlert title={retryError.title} message={retryError.message} />
+        ) : null}
 
         {/*
           The status check itself failed, which stops polling. Without an
