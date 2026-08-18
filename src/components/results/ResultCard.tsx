@@ -1,4 +1,5 @@
 import { Button, Card, Spinner } from '@heroui/react'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { useJobResult } from '@/features/jobs/hooks/useJobResult'
 import { ResultViewer } from './ResultViewer'
@@ -19,6 +20,18 @@ export function ResultCard({ jobId, isComplete }: ResultCardProps) {
   const { result, isLoading, error, retry } = useJobResult(jobId, {
     enabled: isComplete,
   })
+
+  // Asking for a result before the job has finished is a normal thing for a
+  // user to do — by bookmarking the page, say — so say so plainly rather than
+  // claiming the job is complete.
+  if (!isComplete) {
+    return (
+      <EmptyState
+        title="This result isn't ready yet"
+        description="Your image is still being processed. This page updates on its own, so there is no need to refresh."
+      />
+    )
+  }
 
   return (
     <Card>
