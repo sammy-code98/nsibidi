@@ -38,3 +38,13 @@ export interface Job {
   createdAt: string
   updatedAt: string
 }
+
+/** Payload returned by the result endpoint once a job is complete. */
+export interface JobResult {
+  job_id: string
+  filename: string
+  /** Displayable URL of the processed image. */
+  result: string
+  completed_at: string
+  processing_time_ms: number
+}
