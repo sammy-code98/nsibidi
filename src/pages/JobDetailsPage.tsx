@@ -1,15 +1,17 @@
 import { Button, Card } from '@heroui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { JobError } from '@/components/jobs/JobError'
+import { JobLongRunningNotice } from '@/components/jobs/JobLongRunningNotice'
 import { JobProgress } from '@/components/jobs/JobProgress'
 import { JobStatus } from '@/components/jobs/JobStatus'
 import { PageHeading } from '@/components/layout/PageHeading'
 import { ResultCard } from '@/components/results/ResultCard'
 import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { LinkButton } from '@/components/ui/LinkButton'
+import { useIsJobLongRunning } from '@/features/jobs/hooks/useIsJobLongRunning'
 import { useJobStatus } from '@/features/jobs/hooks/useJobStatus'
 import { useRetryJob } from '@/features/jobs/hooks/useRetryJob'
-import { canRetryJob } from '@/features/jobs/job.utils'
+import { canRetryJob, isActiveStatus } from '@/features/jobs/job.utils'
 import { useJobsRegistry } from '@/features/jobs/jobsContext'
 import { ROUTES } from '@/lib/constants'
 
@@ -40,6 +42,11 @@ export function JobDetailsPage() {
     error: statusError,
     refetch,
   } = useJobStatus(jobId)
+
+  const isLongRunning = useIsJobLongRunning(
+    trackedJob?.createdAt,
+    status !== undefined && isActiveStatus(status),
+  )
 
   const heading = (
     <PageHeading
@@ -149,6 +156,8 @@ export function JobDetailsPage() {
               label={`Processing ${trackedJob?.filename ?? 'your image'}`}
             />
           ) : null}
+
+          {isLongRunning ? <JobLongRunningNotice /> : null}
         </Card.Content>
       </Card>
     </>

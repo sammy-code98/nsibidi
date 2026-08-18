@@ -1,13 +1,15 @@
 import { Button, Card, Link } from '@heroui/react'
 import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { LinkButton } from '@/components/ui/LinkButton'
+import { useIsJobLongRunning } from '@/features/jobs/hooks/useIsJobLongRunning'
 import { useJobStatus } from '@/features/jobs/hooks/useJobStatus'
 import { useRetryJob } from '@/features/jobs/hooks/useRetryJob'
 import { getJobStatusPresentation } from '@/features/jobs/job.status'
 import type { TrackedJob } from '@/features/jobs/job.types'
-import { canRetryJob } from '@/features/jobs/job.utils'
+import { canRetryJob, isActiveStatus } from '@/features/jobs/job.utils'
 import { ROUTES } from '@/lib/constants'
 import { JobError } from './JobError'
+import { JobLongRunningNotice } from './JobLongRunningNotice'
 import { JobProgress } from './JobProgress'
 import { JobStatus } from './JobStatus'
 
@@ -31,6 +33,10 @@ export function JobCard({ job }: JobCardProps) {
     refetch,
   } = useJobStatus(job.id)
   const { retry, isRetrying, error: retryError } = useRetryJob()
+  const isLongRunning = useIsJobLongRunning(
+    job.createdAt,
+    status !== undefined && isActiveStatus(status),
+  )
   const detailsHref = ROUTES.jobDetails(job.id)
 
   return (
@@ -64,6 +70,8 @@ export function JobCard({ job }: JobCardProps) {
         {status === 'processing' ? (
           <JobProgress label={`Processing ${job.filename}`} />
         ) : null}
+
+        {isLongRunning ? <JobLongRunningNotice /> : null}
 
         {status === 'failed' ? (
           <JobError
