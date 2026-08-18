@@ -1,4 +1,4 @@
-import type { CreateJobResponse } from '@/features/jobs/job.types'
+import type { ApiJob, CreateJobResponse } from '@/features/jobs/job.types'
 import { apiFetch } from './client'
 
 /**
@@ -22,5 +22,10 @@ export const jobsApi = {
       method: 'POST',
       body: formData,
     })
+  },
+
+  /** Reads a job's current status. */
+  async get(jobId: string): Promise<ApiJob> {
+    return apiFetch<ApiJob>(`/jobs/${encodeURIComponent(jobId)}`)
   },
 }

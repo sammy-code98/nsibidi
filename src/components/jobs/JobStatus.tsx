@@ -1,0 +1,30 @@
+import { Chip } from '@heroui/react'
+import type { JobStatus as JobStatusValue } from '@/features/jobs/job.types'
+import { getJobStatusPresentation } from '@/features/jobs/job.status'
+
+interface JobStatusProps {
+  status: JobStatusValue
+  /** Also render the explanatory sentence beneath the label. */
+  withDescription?: boolean
+}
+
+/**
+ * Presents a job's status in human terms.
+ *
+ * Always renders the status as text, never as colour alone, so the state is
+ * legible without relying on colour perception.
+ */
+export function JobStatus({ status, withDescription }: JobStatusProps) {
+  const { label, description, tone } = getJobStatusPresentation(status)
+
+  return (
+    <div className="space-y-1">
+      <Chip color={tone} variant="soft" size="sm">
+        {label}
+      </Chip>
+      {withDescription ? (
+        <p className="text-sm text-muted">{description}</p>
+      ) : null}
+    </div>
+  )
+}
