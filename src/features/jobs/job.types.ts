@@ -1,9 +1,6 @@
 /** Lifecycle states a job moves through, as returned by the API. */
 export type JobStatus = 'queued' | 'processing' | 'complete' | 'failed'
 
-/** Statuses from which a job can still change. */
-export const ACTIVE_JOB_STATUSES = ['queued', 'processing'] as const
-
 /** Statuses a job never leaves. */
 export const TERMINAL_JOB_STATUSES = ['complete', 'failed'] as const
 
@@ -36,13 +33,6 @@ export interface TrackedJob {
   filename: string
   file?: File
   createdAt: string
-}
-
-/** A tracked job combined with the API's current view of it. */
-export interface Job extends TrackedJob {
-  status: JobStatus
-  result: string | null
-  error: string | null
 }
 
 /** Payload returned by the result endpoint once a job is complete. */

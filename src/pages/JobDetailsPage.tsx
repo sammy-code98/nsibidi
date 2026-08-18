@@ -1,6 +1,6 @@
 import { Button, Card } from '@heroui/react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { JobError } from '@/components/jobs/JobError'
+import { JobFailurePanel } from '@/components/jobs/JobFailurePanel'
 import { JobLongRunningNotice } from '@/components/jobs/JobLongRunningNotice'
 import { JobProgress } from '@/components/jobs/JobProgress'
 import { JobStatus } from '@/components/jobs/JobStatus'
@@ -10,16 +10,15 @@ import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { LinkButton } from '@/components/ui/LinkButton'
 import { useIsJobLongRunning } from '@/features/jobs/hooks/useIsJobLongRunning'
 import { useJobStatus } from '@/features/jobs/hooks/useJobStatus'
-import { useRetryJob } from '@/features/jobs/hooks/useRetryJob'
-import { canRetryJob, isActiveStatus } from '@/features/jobs/job.utils'
 import { useJobsRegistry } from '@/features/jobs/jobsContext'
+import { isActiveStatus } from '@/features/jobs/job.utils'
 import { ROUTES } from '@/lib/constants'
 
 /**
  * A single job in detail.
  *
- * Composes the same status, progress and result components the job list uses,
- * so there is one implementation of each state rather than a second copy here.
+ * Composes the same status, progress, failure and result components the job
+ * list uses, so each state has one implementation rather than a second copy.
  */
 export function JobDetailsPage() {
   const { jobId = '' } = useParams<{ jobId: string }>()
@@ -27,14 +26,6 @@ export function JobDetailsPage() {
   const { getJob } = useJobsRegistry()
   const trackedJob = getJob(jobId)
 
-  // Following the retry keeps the user on the job they are now waiting for.
-  const {
-    retry,
-    isRetrying,
-    error: retryError,
-  } = useRetryJob({
-    onRetried: (created) => void navigate(ROUTES.jobDetails(created.job_id)),
-  })
   const {
     status,
     job,
@@ -115,32 +106,20 @@ export function JobDetailsPage() {
     return (
       <>
         {heading}
-        <div className="space-y-4">
-          <JobError
-            reason={job?.error}
-            actions={
-              <>
-                {trackedJob && canRetryJob(trackedJob) ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onPress={() => retry(trackedJob)}
-                    isPending={isRetrying}
-                  >
-                    {isRetrying ? 'Resubmitting…' : 'Retry job'}
-                  </Button>
-                ) : null}
-                <LinkButton href={ROUTES.upload} variant="secondary" size="sm">
-                  Upload another image
-                </LinkButton>
-              </>
-            }
-          />
-
-          {retryError ? (
-            <ErrorAlert title={retryError.title} message={retryError.message} />
-          ) : null}
-        </div>
+        <JobFailurePanel
+          job={trackedJob}
+          reason={job?.error}
+          // Follow the replacement, so the user watches the attempt that is
+          // actually running now.
+          onRetried={(created) =>
+            void navigate(ROUTES.jobDetails(created.job_id))
+          }
+          extraActions={
+            <LinkButton href={ROUTES.upload} variant="secondary" size="sm">
+              Upload another image
+            </LinkButton>
+          }
+        />
       </>
     )
   }
@@ -156,7 +135,6 @@ export function JobDetailsPage() {
               label={`Processing ${trackedJob?.filename ?? 'your image'}`}
             />
           ) : null}
-
           {isLongRunning ? <JobLongRunningNotice /> : null}
         </Card.Content>
       </Card>

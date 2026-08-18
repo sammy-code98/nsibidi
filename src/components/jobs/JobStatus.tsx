@@ -1,6 +1,6 @@
 import { Chip } from '@heroui/react'
 import type { JobStatus as JobStatusValue } from '@/features/jobs/job.types'
-import { getJobStatusPresentation } from '@/features/jobs/job.status'
+import { jobStatusConfig } from '@/features/jobs/job.status'
 
 interface JobStatusProps {
   status: JobStatusValue
@@ -17,7 +17,7 @@ interface JobStatusProps {
  * `role="status"` announces changes only, so the initial render is silent.
  */
 export function JobStatus({ status, withDescription }: JobStatusProps) {
-  const { label, description, tone } = getJobStatusPresentation(status)
+  const { label, description, tone } = jobStatusConfig[status]
 
   return (
     <div className="space-y-1" role="status">

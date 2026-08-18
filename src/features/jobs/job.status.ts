@@ -39,9 +39,3 @@ export const jobStatusConfig: Record<JobStatus, JobStatusPresentation> = {
     tone: 'danger',
   },
 }
-
-export function getJobStatusPresentation(
-  status: JobStatus,
-): JobStatusPresentation {
-  return jobStatusConfig[status]
-}
