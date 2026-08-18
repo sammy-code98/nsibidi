@@ -43,6 +43,8 @@ export const SCENARIO_KEYWORDS = {
   reject: ['reject', 'offline', 'unavailable'],
   /** Job completes, but fetching its result fails. */
   badResult: ['noresult', 'missing'],
+  /** Job completes normally with a viewable result. */
+  succeed: ['success', 'succeed'],
 } as const
 
 export type ScenarioKind = keyof typeof SCENARIO_KEYWORDS

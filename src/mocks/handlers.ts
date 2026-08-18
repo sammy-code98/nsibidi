@@ -58,7 +58,7 @@ export const handlers = [
       )
     }
 
-    const job = createMockJob(file)
+    const job = await createMockJob(file)
     await delay(responseDelayMs())
 
     return HttpResponse.json<CreateJobResponse>(
@@ -85,6 +85,33 @@ export const handlers = [
       status,
       result: status === 'complete' ? job.resultUrl : null,
       error: status === 'failed' ? job.error : null,
+    })
+  }),
+
+  /**
+   * Serves the processed image itself.
+   *
+   * The result endpoint returns this URL rather than inline image data, which
+   * is both closer to how a real service behaves and avoids passing megabytes
+   * of base64 through the worker boundary.
+   */
+  http.get(endpoint('/jobs/:jobId/image'), async ({ params }) => {
+    const jobId = String(params.jobId)
+    const job = getMockJob(jobId)
+
+    if (!job) {
+      return notFound(jobId)
+    }
+
+    if (deriveStatus(job) !== 'complete') {
+      return HttpResponse.json(
+        { error: 'This image is not ready yet.' },
+        { status: 409 },
+      )
+    }
+
+    return HttpResponse.arrayBuffer(job.imageBytes, {
+      headers: { 'Content-Type': job.imageType },
     })
   }),
 

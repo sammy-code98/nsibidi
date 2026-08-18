@@ -46,7 +46,8 @@ export function JobCard({ job }: JobCardProps) {
           <div className="min-w-0 flex-1">
             <Link
               href={detailsHref}
-              className="block truncate text-sm font-medium"
+              // `py-1` keeps the tap target at least 24px tall.
+              className="block truncate py-1 text-sm font-medium"
             >
               {job.filename}
             </Link>

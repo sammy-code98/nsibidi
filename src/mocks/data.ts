@@ -28,8 +28,11 @@ export interface MockJob {
   outcome: Extract<JobStatus, 'complete' | 'failed'>
   /** Failure detail, present only when `outcome` is `failed`. */
   error: string | null
-  /** Displayable URL of the processed image, available once complete. */
+  /** URL the UI can render as the processed image, once complete. */
   resultUrl: string
+  /** The uploaded bytes, served back by the image endpoint. */
+  imageBytes: ArrayBuffer
+  imageType: string
   /** Forces the result endpoint to fail, to exercise result-error handling. */
   resultIsUnavailable: boolean
 }
@@ -56,21 +59,14 @@ function createJobId(): string {
 }
 
 /**
- * Produces a URL the UI can render as the processed image.
+ * Registers a new job and schedules its lifecycle.
  *
- * The mock does not transform the image — the assessment excludes real image
- * processing — so the uploaded bytes are handed back for display.
+ * The uploaded bytes are kept so the image endpoint can serve them back. An
+ * object URL would be simpler, but a `blob:` URL created here does not survive
+ * being handed to the page through the service worker, so the mock exposes a
+ * real URL the browser can actually fetch.
  */
-function createResultUrl(file: File): string {
-  if (typeof URL.createObjectURL === 'function') {
-    return URL.createObjectURL(file)
-  }
-
-  return `mock://result/${encodeURIComponent(file.name)}`
-}
-
-/** Registers a new job and schedules its lifecycle. */
-export function createMockJob(file: File): MockJob {
+export async function createMockJob(file: File): Promise<MockJob> {
   const scenario: ScenarioKind | null = detectScenario(file.name)
 
   // Only unforced jobs roll the dice on speed: a job named to demonstrate
@@ -82,13 +78,13 @@ export function createMockJob(file: File): MockJob {
         ? false
         : Math.random() < MOCK_CONFIG.slowRate
 
-  // A forced scenario must be reliable: `badResult` needs the job to complete
-  // so the result request is the thing that fails, otherwise a random failure
-  // would hide the behaviour being demonstrated.
+  // A forced scenario must be reliable: `badResult` and `succeed` both need
+  // the job to complete — for one the result request is what fails, for the
+  // other nothing does — so a random failure must not override them.
   const willFail =
     scenario === 'fail'
       ? true
-      : scenario === 'badResult'
+      : scenario === 'badResult' || scenario === 'succeed'
         ? false
         : Math.random() < MOCK_CONFIG.failureRate
 
@@ -106,16 +102,19 @@ export function createMockJob(file: File): MockJob {
   )
 
   const startsProcessingAt = now + queuedFor
+  const id = createJobId()
 
   const job: MockJob = {
-    id: createJobId(),
+    id,
     filename: file.name,
     createdAt: now,
     startsProcessingAt,
     finishesAt: startsProcessingAt + processingFor,
     outcome: willFail ? 'failed' : 'complete',
     error: willFail ? pick(FAILURE_REASONS, FAILURE_REASONS[0]) : null,
-    resultUrl: createResultUrl(file),
+    resultUrl: `/jobs/${id}/image`,
+    imageBytes: await file.arrayBuffer(),
+    imageType: file.type || 'application/octet-stream',
     resultIsUnavailable: scenario === 'badResult',
   }
 
