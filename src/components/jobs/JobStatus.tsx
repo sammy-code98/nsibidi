@@ -12,13 +12,15 @@ interface JobStatusProps {
  * Presents a job's status in human terms.
  *
  * Always renders the status as text, never as colour alone, so the state is
- * legible without relying on colour perception.
+ * legible without relying on colour perception. Marked as a polite live region
+ * so a screen reader user hears a job settle without re-reading the page —
+ * `role="status"` announces changes only, so the initial render is silent.
  */
 export function JobStatus({ status, withDescription }: JobStatusProps) {
   const { label, description, tone } = getJobStatusPresentation(status)
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1" role="status">
       <Chip color={tone} variant="soft" size="sm">
         {label}
       </Chip>

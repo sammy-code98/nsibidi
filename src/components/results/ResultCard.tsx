@@ -44,7 +44,10 @@ export function ResultCard({ jobId, isComplete }: ResultCardProps) {
 
       <Card.Content>
         {isLoading ? (
-          <div className="flex items-center gap-3 py-8 text-sm text-muted">
+          <div
+            className="flex items-center gap-3 py-8 text-sm text-muted"
+            role="status"
+          >
             <Spinner size="sm" aria-hidden="true" />
             <span>Loading your result…</span>
           </div>

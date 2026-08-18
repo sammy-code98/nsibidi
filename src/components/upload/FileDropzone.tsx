@@ -89,7 +89,6 @@ export function FileDropzone({ onFileSelected, isDisabled }: FileDropzoneProps) 
       data-dragging={isDraggingOver || undefined}
       className={cn(
         'rounded-xl border-2 border-dashed border-border bg-surface-secondary/40 transition-colors',
-        'has-[input:focus-visible]:border-accent has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-focus',
         isDraggingOver && 'border-accent bg-accent-soft/50',
         isDisabled && 'opacity-60',
       )}
@@ -98,7 +97,7 @@ export function FileDropzone({ onFileSelected, isDisabled }: FileDropzoneProps) 
         id={inputId}
         type="file"
         accept={FILE_INPUT_ACCEPT}
-        className="sr-only"
+        className="peer sr-only"
         onChange={handleChange}
         disabled={isDisabled}
         aria-describedby={hintId}
@@ -106,7 +105,10 @@ export function FileDropzone({ onFileSelected, isDisabled }: FileDropzoneProps) 
       <label
         htmlFor={inputId}
         className={cn(
-          'flex flex-col items-center justify-center gap-3 px-6 py-10 text-center',
+          'flex flex-col items-center justify-center gap-3 rounded-xl px-6 py-10 text-center',
+          // The input itself is visually hidden, so its focus is surfaced on
+          // the label — otherwise keyboard users get no focus indicator.
+          'peer-focus-visible:focus-ring',
           isDisabled ? 'cursor-not-allowed' : 'cursor-pointer',
         )}
       >

@@ -55,7 +55,7 @@ export function JobCard({ job }: JobCardProps) {
           {status ? (
             <JobStatus status={status} />
           ) : (
-            <p className="text-sm text-muted">
+            <p className="text-sm text-muted" role="status">
               {isPending ? 'Checking status…' : 'Status unavailable'}
             </p>
           )}
@@ -119,7 +119,6 @@ export function JobCard({ job }: JobCardProps) {
           </div>
         ) : null}
 
-        {isPending ? <span className="sr-only">Loading job status</span> : null}
       </Card.Content>
     </Card>
   )
