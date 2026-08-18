@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useRef } from 'react'
 import { jobsApi } from '@/api/jobs'
-import type { CreateJobResponse } from '../job.types'
+import type { ApiJob, CreateJobResponse } from '../job.types'
 import type { FailureDescription } from '../job.errors'
 import { describeSubmissionFailure } from '../job.errors'
+import { jobKeys } from '../job.keys'
 
 interface UseCreateJobOptions {
   /** Called once the service has accepted the job. */
@@ -21,30 +23,38 @@ interface UseCreateJobResult {
 /**
  * Submits an image as a processing job.
  *
- * Owns only the submission itself — the caller decides what to do with the
- * accepted job.
+ * On success the new job's status is written straight into the query cache, so
+ * the job appears as "Queued" immediately rather than after the first poll.
  */
 export function useCreateJob(
   options: UseCreateJobOptions = {},
 ): UseCreateJobResult {
   const { onSuccess } = options
+  const queryClient = useQueryClient()
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<FailureDescription | null>(null)
-
-  // A disabled button is not enough on its own: `isSubmitting` lands a render
+  // A disabled button is not enough on its own: `isPending` lands a render
   // later, so a fast double-click could fire two requests. This ref closes
   // that window synchronously.
   const inFlight = useRef(false)
 
-  // Guards against setting state after the component has gone away.
-  const isMounted = useRef(true)
-  useEffect(() => {
-    isMounted.current = true
-    return () => {
-      isMounted.current = false
-    }
-  }, [])
+  const mutation = useMutation({
+    mutationFn: (file: File) => jobsApi.create(file),
+    onSuccess: (job, file) => {
+      queryClient.setQueryData<ApiJob>(jobKeys.detail(job.job_id), {
+        job_id: job.job_id,
+        status: job.status,
+        result: null,
+        error: null,
+      })
+
+      onSuccess?.(job, file)
+    },
+    onSettled: () => {
+      inFlight.current = false
+    },
+  })
+
+  const { mutate } = mutation
 
   const submit = useCallback(
     (file: File) => {
@@ -53,32 +63,15 @@ export function useCreateJob(
       }
 
       inFlight.current = true
-      setIsSubmitting(true)
-      setError(null)
-
-      jobsApi
-        .create(file)
-        .then((job) => {
-          if (!isMounted.current) return
-          onSuccess?.(job, file)
-        })
-        .catch((cause: unknown) => {
-          if (!isMounted.current) return
-          setError(describeSubmissionFailure(cause))
-        })
-        .finally(() => {
-          inFlight.current = false
-          if (isMounted.current) {
-            setIsSubmitting(false)
-          }
-        })
+      mutate(file)
     },
-    [onSuccess],
+    [mutate],
   )
 
-  const reset = useCallback(() => {
-    setError(null)
-  }, [])
-
-  return { submit, isSubmitting, error, reset }
+  return {
+    submit,
+    isSubmitting: mutation.isPending,
+    error: mutation.error ? describeSubmissionFailure(mutation.error) : null,
+    reset: mutation.reset,
+  }
 }

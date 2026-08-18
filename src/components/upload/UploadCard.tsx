@@ -1,9 +1,12 @@
-import { Alert, Button, Card, Spinner } from '@heroui/react'
-import { useCallback, useState } from 'react'
+import { Button, Card, Spinner } from '@heroui/react'
+import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import { useCreateJob } from '@/features/jobs/hooks/useCreateJob'
 import type { CreateJobResponse } from '@/features/jobs/job.types'
+import { useJobsRegistry } from '@/features/jobs/jobsContext'
 import { useFileSelection } from '@/features/upload/useFileSelection'
+import { ROUTES } from '@/lib/constants'
 import { FileDropzone } from './FileDropzone'
 import { FilePreview } from './FilePreview'
 
@@ -12,16 +15,29 @@ import { FilePreview } from './FilePreview'
  * processing job.
  */
 export function UploadCard() {
-  const { file, error: validationError, selectFile, clearSelection } =
-    useFileSelection()
-  const [acceptedJob, setAcceptedJob] = useState<CreateJobResponse | null>(null)
+  const navigate = useNavigate()
+  const { trackJob } = useJobsRegistry()
+  const {
+    file,
+    error: validationError,
+    selectFile,
+    clearSelection,
+  } = useFileSelection()
 
-  const handleSuccess = useCallback(
-    (job: CreateJobResponse) => {
-      setAcceptedJob(job)
+  const handleAccepted = useCallback(
+    (job: CreateJobResponse, submittedFile: File) => {
+      trackJob({
+        id: job.job_id,
+        filename: submittedFile.name,
+        // Kept so a failed job can be resubmitted without re-picking the file.
+        file: submittedFile,
+        createdAt: new Date().toISOString(),
+      })
+
       clearSelection()
+      void navigate(ROUTES.jobs)
     },
-    [clearSelection],
+    [clearSelection, navigate, trackJob],
   )
 
   const {
@@ -29,12 +45,11 @@ export function UploadCard() {
     isSubmitting,
     error: submissionError,
     reset: resetSubmission,
-  } = useCreateJob({ onSuccess: handleSuccess })
+  } = useCreateJob({ onSuccess: handleAccepted })
 
   const handleSelectFile = useCallback(
     (candidate: File) => {
       // A new choice supersedes whatever the last attempt reported.
-      setAcceptedJob(null)
       resetSubmission()
       selectFile(candidate)
     },
@@ -93,18 +108,6 @@ export function UploadCard() {
               </Button>
             }
           />
-        ) : null}
-
-        {acceptedJob ? (
-          <Alert status="success" role="status">
-            <Alert.Indicator />
-            <Alert.Content>
-              <Alert.Title>Your image has been queued</Alert.Title>
-              <Alert.Description>
-                Job {acceptedJob.job_id} is waiting to be processed.
-              </Alert.Description>
-            </Alert.Content>
-          </Alert>
         ) : null}
       </Card.Content>
 

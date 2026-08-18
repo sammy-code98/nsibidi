@@ -22,21 +22,27 @@ export interface CreateJobResponse {
 }
 
 /**
- * A job as the app tracks it.
+ * Frontend-only metadata about a job the app is tracking.
  *
- * Carries frontend-only metadata the API does not return: the original
- * filename for display, the file itself so a failed job can be resubmitted,
- * and timestamps for ordering and long-running detection.
+ * The API never returns any of this: the original filename for display, the
+ * file itself so a failed job can be resubmitted, and when the job was
+ * submitted, for ordering and long-running detection.
+ *
+ * Status deliberately lives elsewhere (the query cache, fed by the API) so
+ * there is exactly one place that knows what a job's status is.
  */
-export interface Job {
+export interface TrackedJob {
   id: string
   filename: string
   file?: File
-  status: JobStatus
-  result?: string | null
-  error?: string | null
   createdAt: string
-  updatedAt: string
+}
+
+/** A tracked job combined with the API's current view of it. */
+export interface Job extends TrackedJob {
+  status: JobStatus
+  result: string | null
+  error: string | null
 }
 
 /** Payload returned by the result endpoint once a job is complete. */
