@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, describe, expect, it } from 'vitest'
 import { jobsApi } from '@/api/jobs'
 import { JobCard } from '@/components/jobs/JobCard'
 import { server } from '@/mocks/server'
@@ -8,6 +8,7 @@ import type { TrackedJob } from '../job.types'
 
 const clock = createFakeClock()
 afterEach(() => clock.reset())
+afterAll(() => clock.restore())
 
 const trackedJob = (id: string, filename: string): TrackedJob => ({
   id,

@@ -2,8 +2,8 @@ import type {
   ApiJob,
   CreateJobResponse,
   JobResult,
-} from '@/features/jobs/job.types'
-import { apiFetch } from './client'
+} from "@/features/jobs/job.types";
+import { apiFetch } from "./client";
 
 /**
  * The job API, mirroring the documented contract.
@@ -19,18 +19,22 @@ export const jobsApi = {
    * not finished.
    */
   async create(file: File): Promise<CreateJobResponse> {
-    const formData = new FormData()
-    formData.append('file', file)
+    const formData = new FormData();
+    formData.append("file", file);
+    // The service identifies the upload by its filename. A File's own name is
+    // not reliably carried through a multipart body in every runtime, so the
+    // name is also sent as a plain text field, which always is.
+    formData.append("filename", file.name);
 
-    return apiFetch<CreateJobResponse>('/jobs', {
-      method: 'POST',
+    return apiFetch<CreateJobResponse>("/jobs", {
+      method: "POST",
       body: formData,
-    })
+    });
   },
 
   /** Reads a job's current status. */
   async get(jobId: string): Promise<ApiJob> {
-    return apiFetch<ApiJob>(`/jobs/${encodeURIComponent(jobId)}`)
+    return apiFetch<ApiJob>(`/jobs/${encodeURIComponent(jobId)}`);
   },
 
   /**
@@ -40,6 +44,6 @@ export const jobsApi = {
    * once the job's status is `complete`.
    */
   async getResult(jobId: string): Promise<JobResult> {
-    return apiFetch<JobResult>(`/jobs/${encodeURIComponent(jobId)}/result`)
+    return apiFetch<JobResult>(`/jobs/${encodeURIComponent(jobId)}/result`);
   },
-}
+};
