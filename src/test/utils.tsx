@@ -79,22 +79,46 @@ export function renderWithProviders(
   return { queryClient, ...render(ui, { wrapper: Wrapper }) }
 }
 
+// /**
+//  * Moves the clock forward so time-derived job statuses advance without the
+//  * test having to wait out a real processing window.
+//  */
+// export function createFakeClock() {
+//   const realNow = Date.now.bind(Date)
+//   let offset = 0
+
+//   Date.now = () => realNow() + offset
+
+//   return {
+//     advance: (ms: number) => {
+//       offset += ms
+//     },
+//     reset: () => {
+//       offset = 0
+//     },
+//     restore: () => {
+//       Date.now = realNow
+//     },
+//   }
+// }
+
 /**
- * Moves the clock forward so time-derived job statuses advance without the
- * test having to wait out a real processing window.
+ * Freezes Date.now so job status (derived from elapsed time) only moves when
+ * the test calls advance(). An offset on a still-ticking clock is not enough:
+ * long findByText waits on CI can skip intermediate statuses.
  */
 export function createFakeClock() {
   const realNow = Date.now.bind(Date)
-  let offset = 0
+  let now = realNow()
 
-  Date.now = () => realNow() + offset
+  Date.now = () => now
 
   return {
     advance: (ms: number) => {
-      offset += ms
+      now += ms
     },
     reset: () => {
-      offset = 0
+      now = realNow()
     },
     restore: () => {
       Date.now = realNow
