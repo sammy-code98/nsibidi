@@ -79,28 +79,6 @@ export function renderWithProviders(
   return { queryClient, ...render(ui, { wrapper: Wrapper }) }
 }
 
-// /**
-//  * Moves the clock forward so time-derived job statuses advance without the
-//  * test having to wait out a real processing window.
-//  */
-// export function createFakeClock() {
-//   const realNow = Date.now.bind(Date)
-//   let offset = 0
-
-//   Date.now = () => realNow() + offset
-
-//   return {
-//     advance: (ms: number) => {
-//       offset += ms
-//     },
-//     reset: () => {
-//       offset = 0
-//     },
-//     restore: () => {
-//       Date.now = realNow
-//     },
-//   }
-// }
 
 /**
  * Freezes Date.now so job status (derived from elapsed time) only moves when

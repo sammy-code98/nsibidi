@@ -1,51 +1,15 @@
-// import { fileURLToPath, URL } from "node:url";
-// import react from "@vitejs/plugin-react";
-// import { defineConfig } from "vitest/config";
-
-// export default defineConfig({
-//   plugins: [react()],
-//   resolve: {
-//     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
-//   },
-//   test: {
-//     environment: "happy-dom",
-//     globals: true,
-//     setupFiles: ["./src/test/setup.ts"],
-//     testTimeout: 30_000,
-//     hookTimeout: 30_000,
-//   },
-// });
-
-// import { fileURLToPath, URL } from "node:url";
-// import react from "@vitejs/plugin-react";
-// import { defineConfig } from "vitest/config";
-
-// export default defineConfig({
-//   plugins: [react()],
-//   resolve: {
-//     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
-//   },
-//   test: {
-//     environment: "happy-dom",
-//     globals: true,
-//     setupFiles: ["./src/test/setup.ts"],
-//     testTimeout: 30_000,
-//     hookTimeout: 30_000,
-//   },
-// });
-
-
 import { fileURLToPath, URL } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   test: {
-    environment: "happy-dom", // was "jsdom"
+    environment: "happy-dom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     testTimeout: 30_000,
